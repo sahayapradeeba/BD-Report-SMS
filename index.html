@@ -28,7 +28,7 @@
       color: #38bdf8;
     }
     .container {
-      max-width: 1400px;
+      max-width: 1500px;
       margin: auto;
       padding: 20px;
     }
@@ -40,23 +40,11 @@
       margin-bottom: 18px;
       box-shadow: 0 8px 20px rgba(0,0,0,.25);
     }
-    h2, h3 {
-      margin-top: 0;
-      color: #f8fafc;
-    }
-    .grid {
-      display: grid;
-      gap: 16px;
-    }
+    h2, h3 { margin-top: 0; color: #f8fafc; }
+    .grid { display: grid; gap: 16px; }
     .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
     .grid-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-
-    label {
-      display: block;
-      font-size: 14px;
-      margin-bottom: 6px;
-      color: #cbd5e1;
-    }
+    label { display: block; font-size: 14px; margin-bottom: 6px; color: #cbd5e1; }
     input, select, textarea, button {
       width: 100%;
       padding: 11px 12px;
@@ -66,10 +54,7 @@
       color: #f8fafc;
       font-size: 14px;
     }
-    textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
+    textarea { min-height: 120px; resize: vertical; }
     button {
       background: linear-gradient(135deg,#0ea5e9,#2563eb);
       border: none;
@@ -78,32 +63,23 @@
       transition: .2s;
     }
     button:hover { transform: translateY(-1px); opacity: .95; }
-    .btn-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .btn-row button {
-      flex: 1 1 180px;
-    }
-    .small {
-      font-size: 12px;
-      color: #94a3b8;
-    }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .btn-row button { flex: 1 1 180px; }
+    .small { font-size: 12px; color: #94a3b8; }
     .success { color: #22c55e; font-weight: 700; }
     .warn { color: #f59e0b; font-weight: 700; }
     .danger { color: #ef4444; font-weight: 700; }
-
     .table-wrap {
       overflow: auto;
       border-radius: 14px;
       border: 1px solid #1f2937;
       background: #0b1220;
+      max-height: 70vh;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 1100px;
+      min-width: 1450px;
     }
     th, td {
       border-bottom: 1px solid #1f2937;
@@ -127,9 +103,7 @@
       font-size: 12px;
       color: #cbd5e1;
     }
-    .hidden-advanced .adv {
-      display: none;
-    }
+    .hidden-advanced .adv { display: none; }
     .section-title {
       display:flex;
       justify-content:space-between;
@@ -149,12 +123,30 @@
       color:#94a3b8;
       font-size:12px;
     }
+    .tag {
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      margin-right:6px;
+    }
+    .tag.major { background:#7f1d1d; color:#fecaca; }
+    .tag.minor { background:#1d4ed8; color:#dbeafe; }
+    .tag.good { background:#14532d; color:#bbf7d0; }
+    .tag.gray { background:#334155; color:#e2e8f0; }
+    .mini { min-height: 44px; }
+    .sticky-tools {
+      position: sticky;
+      bottom: 12px;
+      z-index: 20;
+    }
   </style>
 </head>
 <body>
   <header>
     <h1>⚡ Above 6Hr / 10Hr Report Generator</h1>
-    <div class="small">Single HTML • Master Lookup • 5 Area Sheets • FDR • Persistent Manual Data</div>
+    <div class="small">Single HTML • 5 Area Sheets • Master Lookup • FDR • Manual Reason / ETR Save • Current Filter Under BD Only</div>
   </header>
 
   <div class="container">
@@ -168,7 +160,7 @@
           <div id="masterStatus" class="small">No file uploaded</div>
         </div>
         <div>
-          <label>Main Report Excel (contains area sheets + FDR)</label>
+          <label>Area / Report Excel (can contain all 5 area sheets + FDR)</label>
           <input type="file" id="mainFile" accept=".xlsx,.xls,.csv" />
           <div id="mainStatus" class="small">No file uploaded</div>
         </div>
@@ -184,7 +176,7 @@
           <input type="time" id="reportTime" />
         </div>
         <div>
-          <label>Hide advanced columns in preview</label>
+          <label>Hide advanced edit columns in preview</label>
           <select id="hideAdvanced">
             <option value="yes" selected>Yes</option>
             <option value="no">No</option>
@@ -195,7 +187,7 @@
       <div class="btn-row">
         <button onclick="processAll()">⚙️ Process Data</button>
         <button onclick="saveManualStore()">💾 Save Manual Data</button>
-        <button onclick="loadManualStore()">♻️ Reload Saved Data</button>
+        <button onclick="loadManualStore(true)">♻️ Reload Saved Data</button>
         <button onclick="clearAllData()">🗑️ Clear All</button>
       </div>
       <br />
@@ -205,15 +197,23 @@
     <div class="card">
       <div class="section-title">
         <h2>2) Preview / Edit Data</h2>
-        <span class="pill">Manual notes / ETR / Action auto-save supported</span>
+        <span class="pill">Manual Reason / ETR / Category / Site save aagum • Refresh panna delete aagathu</span>
+      </div>
+      <div style="margin-bottom:12px" class="small">
+        <span class="tag good" id="countWtg">WTG: 0</span>
+        <span class="tag gray" id="countFdr">FDR: 0</span>
+        <span class="tag minor" id="countMinor">Minor: 0</span>
+        <span class="tag major" id="countMajor">Major: 0</span>
       </div>
       <div class="table-wrap" id="previewWrap">
         <table id="previewTable">
           <thead>
             <tr>
+              <th>#</th>
               <th>WTG</th>
               <th>Area</th>
               <th>Site</th>
+              <th>Model</th>
               <th>Capacity</th>
               <th>Customer</th>
               <th>Error</th>
@@ -231,7 +231,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card sticky-tools">
       <h2>3) Generate Outputs</h2>
       <div class="btn-row">
         <button onclick="generateAbove6WTG()">📋 Above 6Hr WTG</button>
@@ -252,7 +252,7 @@
   </div>
 
   <div class="footer-note">
-    Built for field reporting • Refresh panna data delete aagathu (manual store saved locally)
+    Built for field reporting • Current filtered visible Under BD rows only target pannum • Multiple area sheets support
   </div>
 
   <script>
@@ -266,14 +266,14 @@
 
     function $(id){ return document.getElementById(id); }
 
-    // ------------------------------
-    // INIT
-    // ------------------------------
     (function init(){
       const now = new Date();
-      $("reportDate").value = now.toISOString().slice(0,10);
+      const y = now.getFullYear();
+      const m = String(now.getMonth()+1).padStart(2,'0');
+      const d = String(now.getDate()).padStart(2,'0');
+      $("reportDate").value = `${y}-${m}-${d}`;
       $("reportTime").value = now.toTimeString().slice(0,5);
-      loadManualStore();
+      loadManualStore(false);
       applyPreviewMode();
       $("hideAdvanced").addEventListener("change", applyPreviewMode);
     })();
@@ -283,9 +283,6 @@
       $("previewWrap").classList.toggle("hidden-advanced", hide);
     }
 
-    // ------------------------------
-    // UTIL
-    // ------------------------------
     function norm(v) {
       return String(v || "")
         .toLowerCase()
@@ -300,9 +297,11 @@
       muthayampatty: "Muthayampatty",
       muthyampatty: "Muthayampatty",
       muthayampatti: "Muthayampatty",
+      muthayampattti: "Muthayampatty",
       radhapuram: "Radhapuram",
       viliseri: "Viliseri",
-      villiseri: "Viliseri"
+      villiseri: "Viliseri",
+      vilaseri: "Viliseri"
     };
 
     function cleanArea(area) {
@@ -342,27 +341,38 @@
       return `${dd}/${mm}/${yy}`;
     }
 
+    function fmtDotDate(v) {
+      if (!v) return "";
+      const d = tryParseDate(v);
+      if (!d) return String(v);
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const yy = String(d.getFullYear()).slice(-2);
+      return `${dd}.${mm}.${yy}`;
+    }
+
+    function fmtTime(v){
+      const d = tryParseDate(v);
+      if (!d) return '';
+      return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    }
+
     function tryParseDate(v) {
       if (!v && v !== 0) return null;
-
       if (v instanceof Date && !isNaN(v)) return v;
 
       if (typeof v === 'number') {
-        // Excel serial
         const date = XLSX.SSF.parse_date_code(v);
         if (date) return new Date(date.y, date.m - 1, date.d, date.H || 0, date.M || 0, date.S || 0);
       }
 
       let s = String(v).trim();
       if (!s) return null;
-
-      // normalize
       s = s.replace(/\./g, ':').replace(/\s+/g, ' ');
 
       const d1 = new Date(s);
       if (!isNaN(d1)) return d1;
 
-      // dd-mm-yyyy hh:mm
       const m = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{2,4})(?:\s+(\d{1,2}):(\d{2}))?/);
       if (m) {
         let dd = +m[1], mm = +m[2]-1, yy = +m[3];
@@ -371,26 +381,21 @@
         const d = new Date(yy, mm, dd, hh, mi, 0);
         if (!isNaN(d)) return d;
       }
-
       return null;
     }
 
     function parseDur(v) {
       if (v === null || v === undefined || v === '') return 0;
       if (typeof v === 'number') return v;
-
       const s = String(v).trim().toLowerCase();
       if (!s) return 0;
 
-      const num = parseFloat(s.replace(/[^\d.]/g, ''));
-      if (!isNaN(num) && (s.includes('hr') || s.includes('hrs') || s.includes('h'))) return num;
-      if (!isNaN(num) && /^\d+(\.\d+)?$/.test(s)) return num;
-
-      // time style 12:30
       const m = s.match(/^(\d{1,3}):(\d{1,2})$/);
       if (m) return (+m[1]) + (+m[2]/60);
 
-      return isNaN(num) ? 0 : num;
+      const num = parseFloat(s.replace(/[^\d.]/g, ''));
+      if (!isNaN(num)) return num;
+      return 0;
     }
 
     function diffHours(from) {
@@ -401,22 +406,16 @@
 
     function isBDStatus(status) {
       const s = norm(status);
-      return s.includes("bd") || s.includes("breakdown") || s.includes("underbd");
+      return s.includes("bd") || s.includes("breakdown") || s.includes("underbd") || s.includes("underbreakdown");
     }
 
     function isIgnoreStatus(status) {
       const s = norm(status);
-      return (
-        s.includes("restored") ||
-        s.includes("restore") ||
-        s.includes("closed") ||
-        s === "stop" ||
-        s.includes("running")
-      );
+      return s.includes("restored") || s.includes("restore") || s.includes("closed") || s === "stop" || s.includes("running");
     }
 
     function getManualKey(w){
-      return `${norm(w.id)}|${norm(w.area)}|${norm(w.site)}|${norm(w.capacity)}|${norm(w.error)}`;
+      return `${norm(w.id)}|${norm(w.area)}|${norm(w.site)}|${norm(w.capacity)}|${norm(w.model)}|${norm(w.error)}`;
     }
 
     function mergeManual(row){
@@ -424,15 +423,14 @@
       const m = MANUAL[key] || {};
       return {
         ...row,
+        category: row.category || m.category || '',
+        site: row.site || m.site || row.site || '',
         etr: row.etr || m.etr || '',
         manualReason: row.manualReason || m.manualReason || '',
         actionTaken: row.actionTaken || m.actionTaken || '',
       };
     }
 
-    // ------------------------------
-    // FILE READ
-    // ------------------------------
     function readWorkbook(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -450,132 +448,106 @@
       });
     }
 
-    // ------------------------------
-    // MASTER PARSE
-    // ------------------------------
     function parseMasterRows(wb) {
-      const sn = wb.SheetNames[0];
-      const ws = wb.Sheets[sn];
-      if (ws['!ref']) {
-        const range = XLSX.utils.decode_range(ws['!ref']);
-        range.e.c = Math.min(range.e.c, 20);
-        ws['!ref'] = XLSX.utils.encode_range(range);
-      }
+      const all = [];
+      wb.SheetNames.forEach(sn => {
+        const ws = wb.Sheets[sn];
+        const data = XLSX.utils.sheet_to_json(ws, { defval: '', raw: false, header: 1 });
+        if (!data.length) return;
 
-      const data = XLSX.utils.sheet_to_json(ws, { defval: '', raw: false, header: 1 });
-      if (!data.length) return [];
+        let H = {}, hRow = -1;
+        for (let i = 0; i < Math.min(10, data.length); i++) {
+          const r = data[i] || [];
+          const joined = r.map(x => String(x || '').toLowerCase()).join(' | ');
+          if (joined.includes('loc') || joined.includes('capacity') || joined.includes('site')) {
+            hRow = i;
+            r.forEach((h, j) => {
+              const hh = (h || '').toString().toLowerCase().trim();
+              if (/loc_no|loc no|location no|wtg|machine|code/.test(hh)) H.id = j;
+              if (/inst_capacity|inst capacity|capacity|kw/.test(hh)) H.kw = j;
+              if (hh === 'area' || /area/.test(hh)) H.area = j;
+              if (/main_site|main site|site/.test(hh)) H.site = j;
+              if (/customer/.test(hh)) H.cust = j;
+              if (/model|wtg model/.test(hh)) H.model = j;
+            });
+            break;
+          }
+        }
+        if (hRow < 0 || H.id === undefined) return;
 
-      const H = {};
-      const r0 = data[0] || [];
-      r0.forEach((h, j) => {
-        const hh = (h || '').toString().toLowerCase().trim();
-        if (/loc_no|loc no|code/.test(hh)) H.id = j;
-        if (/inst_capacity|inst capacity|capacity|kw/.test(hh)) H.kw = j;
-        if (hh === 'area' || /location/.test(hh)) H.area = j;
-        if (/main_site|main site|site/.test(hh)) H.site = j;
-        if (/customer/.test(hh)) H.cust = j;
-        if (/model|wtg model/.test(hh)) H.model = j;
+        for (let i = hRow + 1; i < data.length; i++) {
+          const r = data[i];
+          const id = (r[H.id] || '').toString().trim().toUpperCase();
+          if (!id) continue;
+          all.push({
+            id,
+            area: cleanArea(r[H.area] || ''),
+            site: (r[H.site] || '').toString().trim(),
+            customer: (r[H.cust] || '').toString().trim(),
+            model: (r[H.model] || '').toString().trim(),
+            capacity: parseDur(r[H.kw] || 0)
+          });
+        }
       });
-
-      const rows = [];
-      for (let i = 1; i < data.length; i++) {
-        const r = data[i];
-        const id = (r[H.id] || '').toString().trim().toUpperCase();
-        if (!id) continue;
-
-        rows.push({
-          id,
-          area: cleanArea(r[H.area] || ''),
-          site: (r[H.site] || '').toString().trim(),
-          customer: (r[H.cust] || '').toString().trim(),
-          model: (r[H.model] || '').toString().trim(),
-          capacity: parseDur(r[H.kw] || 0)
-        });
-      }
-
-      return rows;
+      return all;
     }
 
     function findMasterMatch(wtg) {
       if (!Array.isArray(MASTER)) return null;
-
       const wid = norm(wtg.id);
       const warea = norm(wtg.area);
       const wsite = norm(wtg.site);
       const wmodel = norm(wtg.model);
 
-      return MASTER.find(m =>
-        norm(m.id) === wid &&
-        norm(m.area) === warea &&
-        norm(m.site) === wsite &&
-        (!wmodel || norm(m.model) === wmodel)
-      ) ||
-      MASTER.find(m =>
-        norm(m.id) === wid &&
-        norm(m.area) === warea &&
-        norm(m.site) === wsite
-      ) ||
-      MASTER.find(m =>
-        norm(m.id) === wid &&
-        norm(m.area) === warea
-      ) ||
-      MASTER.find(m =>
-        norm(m.id) === wid
-      ) || null;
+      return MASTER.find(m => norm(m.id) === wid && norm(m.area) === warea && norm(m.site) === wsite && (!wmodel || norm(m.model) === wmodel)) ||
+             MASTER.find(m => norm(m.id) === wid && norm(m.area) === warea && norm(m.site) === wsite) ||
+             MASTER.find(m => norm(m.id) === wid && norm(m.area) === warea && (!wmodel || norm(m.model) === wmodel)) ||
+             MASTER.find(m => norm(m.id) === wid && norm(m.area) === warea) ||
+             MASTER.find(m => norm(m.id) === wid) || null;
     }
 
-    // ------------------------------
-    // BD PARSE (ALL SHEETS)
-    // ------------------------------
     function isLikelyBDSheet(name) {
       const n = norm(name);
-      return (
-        n.includes("bd") ||
-        n.includes("formula") ||
-        n.includes("sheet") ||
-        n.includes("report") ||
-        AREAS.map(norm).includes(n)
-      ) && !n.includes("fdr") && !n.includes("feeder") && !n.includes("master");
+      return !n.includes('fdr') && !n.includes('feeder') && !n.includes('master');
     }
 
-    function parseBDRowsFromSheet(ws) {
+    function getHeaderMap(row) {
+      const H = {};
+      row.forEach((h, j) => {
+        const hh = (h || '').toString().toLowerCase().trim().replace(/\s+/g,' ');
+        if ((/loc|location no|code|wtg/.test(hh)) && H.id === undefined) H.id = j;
+        if ((hh === 'area' || hh.includes('area')) && H.area === undefined) H.area = j;
+        if ((/^site/.test(hh) || hh.includes('main site')) && H.site === undefined) H.site = j;
+        if (/main.?site/.test(hh)) H.msite = j;
+        if (/error detail|fault|alarm|error/.test(hh) && H.error === undefined) H.error = j;
+        if (/error occurred|occurred time|start time|date time|occurred/.test(hh)) H.occurred = j;
+        if (/current duration|duration|hrs|hr/.test(hh) && H.dur === undefined) H.dur = j;
+        if (/status|working|state/.test(hh) && H.status === undefined) H.status = j;
+        if (/categor/.test(hh)) H.cat = j;
+        if (/customer/.test(hh)) H.cust = j;
+        if (/wtg model|model/.test(hh)) H.model = j;
+        if (/etr/.test(hh)) H.etr = j;
+        if (/action/.test(hh)) H.action = j;
+        if (/manual reason|remarks|reason/.test(hh) && H.reason === undefined) H.reason = j;
+      });
+      return H;
+    }
+
+    function parseBDRowsFromSheet(ws, sheetName) {
       if (!ws) return [];
-
-      if (ws['!ref']) {
-        const range = XLSX.utils.decode_range(ws['!ref']);
-        range.e.c = Math.min(range.e.c, 40);
-        ws['!ref'] = XLSX.utils.encode_range(range);
-      }
-
       const data = XLSX.utils.sheet_to_json(ws, { defval: '', raw: false, header: 1 });
       if (!data.length) return [];
 
       let hRow = -1, H = {};
-      for (let i = 0; i < Math.min(12, data.length); i++) {
+      for (let i = 0; i < Math.min(20, data.length); i++) {
         const r = data[i] || [];
-        const joined = r.map(x => String(x || "").toLowerCase()).join(" | ");
-        if (joined.includes("location") || joined.includes("loc no") || joined.includes("error")) {
+        const joined = r.map(x => String(x || '').toLowerCase()).join(' | ');
+        if (joined.includes('loc') || joined.includes('error') || joined.includes('duration') || joined.includes('status')) {
           hRow = i;
-          r.forEach((h, j) => {
-            const hh = (h || '').toString().toLowerCase().trim().replace(/\s+/g,' ');
-            if ((/loc|location no|code/.test(hh)) && H.id === undefined) H.id = j;
-            if ((hh === 'area' || hh.includes('location')) && H.area === undefined) H.area = j;
-            if (/^site/.test(hh) && H.site === undefined) H.site = j;
-            if (/main.?site/.test(hh)) H.msite = j;
-            if (/error detail|fault|alarm/.test(hh)) H.error = j;
-            if (/error occurred|occurred time|start time/.test(hh)) H.occurred = j;
-            if (/current duration|duration|hrs/.test(hh)) H.dur = j;
-            if (/status|working|state/.test(hh)) H.status = j;
-            if (/categor/.test(hh)) H.cat = j;
-            if (/customer/.test(hh)) H.cust = j;
-            if (/wtg model|model/.test(hh)) H.model = j;
-            if (/etr/.test(hh)) H.etr = j;
-            if (/action/.test(hh)) H.action = j;
-          });
+          H = getHeaderMap(r);
           break;
         }
       }
-
       if (hRow < 0 || H.id === undefined) return [];
 
       const rows = [];
@@ -587,8 +559,8 @@
         if (!id) continue;
 
         const status = (r[H.status] || '').toString().trim();
-        if (isIgnoreStatus(status)) continue;
         if (!isBDStatus(status)) continue;
+        if (isIgnoreStatus(status)) continue;
 
         const durRaw = r[H.dur] || '';
         let dur = parseDur(durRaw);
@@ -596,139 +568,117 @@
         if (!dur && occurred) dur = diffHours(occurred);
         if (dur < 6) continue;
 
+        const areaCell = cleanArea(r[H.area] || sheetName || '');
         rows.push({
           id,
-          area: cleanArea(r[H.area] || ''),
+          area: areaCell,
           site: (r[H.msite !== undefined ? H.msite : H.site] || r[H.site] || '').toString().trim(),
           error: (r[H.error] || '').toString().trim(),
           occurred: occurred,
           duration: durRaw.toString() || dur.toFixed(0),
           durationHrs: dur,
-          status: status || 'UnderBD',
+          status: status || 'BD',
           category: (r[H.cat] || '').toString().trim(),
           customer: (r[H.cust] || '').toString().trim(),
           model: (r[H.model] || '').toString().trim(),
           etr: (r[H.etr] || '').toString().trim(),
           actionTaken: (r[H.action] || '').toString().trim(),
-          manualReason: ''
+          manualReason: (r[H.reason] || '').toString().trim(),
+          sourceSheet: sheetName
         });
       }
-
       return rows;
     }
 
     function parseBDRows(wb) {
       let all = [];
-
       wb.SheetNames.forEach(sn => {
         if (!isLikelyBDSheet(sn)) return;
         const ws = wb.Sheets[sn];
-        const rows = parseBDRowsFromSheet(ws);
+        const rows = parseBDRowsFromSheet(ws, sn);
         if (rows.length) all.push(...rows);
       });
 
-      if (!all.length) {
-        wb.SheetNames.forEach(sn => {
-          const n = norm(sn);
-          if (n.includes("master") || n.includes("fdr") || n.includes("feeder")) return;
-          const ws = wb.Sheets[sn];
-          const rows = parseBDRowsFromSheet(ws);
-          if (rows.length) all.push(...rows);
-        });
-      }
-
-      return all;
+      const dedup = new Map();
+      all.forEach(r => {
+        const key = `${norm(r.id)}|${norm(r.area)}|${norm(r.site)}|${norm(r.error)}|${fmtDateTimeDisplay(r.occurred)}`;
+        if (!dedup.has(key)) dedup.set(key, r);
+      });
+      return [...dedup.values()];
     }
 
-    // ------------------------------
-    // FDR PARSE
-    // ------------------------------
     function parseFDRRows(wb) {
-      const sn = wb.SheetNames.find(n => {
-        const x = norm(n);
-        return x === 'fdr' || x.includes('fdr') || x.includes('feeder');
-      }) || null;
+      const out = [];
+      wb.SheetNames.forEach(sn => {
+        const n = norm(sn);
+        if (!(n.includes('fdr') || n.includes('feeder'))) return;
 
-      if (!sn) return [];
-      const ws = wb.Sheets[sn];
+        const ws = wb.Sheets[sn];
+        const data = XLSX.utils.sheet_to_json(ws, { defval: '', raw: false, header: 1 });
+        if (!data.length) return;
 
-      if (ws['!ref']) {
-        const range = XLSX.utils.decode_range(ws['!ref']);
-        range.e.c = Math.min(range.e.c, 25);
-        ws['!ref'] = XLSX.utils.encode_range(range);
-      }
-
-      const data = XLSX.utils.sheet_to_json(ws, { defval: '', raw: false, header: 1 });
-      if (!data.length) return [];
-
-      let hRow = -1, H = {};
-      for (let i = 0; i < Math.min(10, data.length); i++) {
-        const r = data[i] || [];
-        const joined = r.map(x => String(x || "").toLowerCase()).join(" | ");
-        if (joined.includes("feeder") || joined.includes("wtg")) {
-          hRow = i;
-          r.forEach((h, j) => {
-            const hh = (h || '').toString().toLowerCase().trim().replace(/\s+/g,' ');
-            if (/feeder/.test(hh) && H.name === undefined) H.name = j;
-            if (/duration|hrs/.test(hh)) H.dur = j;
-            if (/count|wtg/.test(hh) && H.count === undefined) H.count = j;
-            if (/description|remarks|desc|status/.test(hh)) H.desc = j;
-            if (/from|occurred|start/.test(hh)) H.from = j;
-            if (/etr/.test(hh)) H.etr = j;
-            if (/area|location/.test(hh)) H.area = j;
-          });
-          break;
+        let hRow = -1, H = {};
+        for (let i = 0; i < Math.min(15, data.length); i++) {
+          const r = data[i] || [];
+          const joined = r.map(x => String(x || '').toLowerCase()).join(' | ');
+          if (joined.includes('feeder') || joined.includes('wtg') || joined.includes('duration') || joined.includes('status')) {
+            hRow = i;
+            r.forEach((h, j) => {
+              const hh = (h || '').toString().toLowerCase().trim().replace(/\s+/g,' ');
+              if (/feeder/.test(hh) && H.name === undefined) H.name = j;
+              if (/duration|hrs|hr/.test(hh) && H.dur === undefined) H.dur = j;
+              if (/count|wtg/.test(hh) && H.count === undefined) H.count = j;
+              if (/description|remarks|desc|status|type/.test(hh) && H.desc === undefined) H.desc = j;
+              if (/from|occurred|start/.test(hh) && H.from === undefined) H.from = j;
+              if (/etr/.test(hh) && H.etr === undefined) H.etr = j;
+              if (/area|location/.test(hh) && H.area === undefined) H.area = j;
+              if (/status/.test(hh) && H.status === undefined) H.status = j;
+            });
+            break;
+          }
         }
-      }
+        if (hRow < 0 || H.name === undefined) return;
 
-      if (hRow < 0 || H.name === undefined) return [];
+        for (let i = hRow + 1; i < data.length; i++) {
+          const r = data[i];
+          if (!r || !r.length) continue;
+          const name = (r[H.name] || '').toString().trim();
+          if (!name) continue;
 
-      const rows = [];
-      for (let i = hRow + 1; i < data.length; i++) {
-        const r = data[i];
-        if (!r || !r.length) continue;
+          const status = (r[H.status] || r[H.desc] || '').toString().trim();
+          if (!isBDStatus(status) && !norm(status).includes('lc')) continue;
+          if (isIgnoreStatus(status)) continue;
 
-        const name = (r[H.name] || '').toString().trim();
-        if (!name) continue;
+          const dur = parseDur(r[H.dur] || 0);
+          if (dur < 6) continue;
 
-        const dur = parseDur(r[H.dur] || 0);
-        const desc = (r[H.desc] || '').toString().trim();
-        const area = cleanArea((r[H.area] || '').toString().trim());
-
-        rows.push({
-          feeder: name,
-          duration: dur,
-          count: parseInt(r[H.count] || 0) || 0,
-          desc: desc,
-          from: r[H.from] || '',
-          etr: (r[H.etr] || '').toString().trim(),
-          area
-        });
-      }
-
-      return rows;
+          out.push({
+            feeder: name,
+            duration: dur,
+            count: parseInt(r[H.count] || 0) || 0,
+            desc: (r[H.desc] || '').toString().trim(),
+            status,
+            from: r[H.from] || '',
+            etr: (r[H.etr] || '').toString().trim(),
+            area: cleanArea((r[H.area] || '').toString().trim())
+          });
+        }
+      });
+      return out;
     }
 
-    // ------------------------------
-    // PROCESS
-    // ------------------------------
     async function processAll() {
       try {
         const masterFile = $("masterFile").files[0];
         const mainFile = $("mainFile").files[0];
-
         if (!masterFile || !mainFile) {
-          alert("Master file and Main report file rendu me upload pannanum da.");
+          alert("Master file and main file rendu me upload pannanum da.");
           return;
         }
 
         $("processStatus").innerHTML = `<span class="warn">Processing...</span>`;
 
-        const [masterWB, mainWB] = await Promise.all([
-          readWorkbook(masterFile),
-          readWorkbook(mainFile)
-        ]);
-
+        const [masterWB, mainWB] = await Promise.all([readWorkbook(masterFile), readWorkbook(mainFile)]);
         MASTER = parseMasterRows(masterWB);
         CURRENT_MAIN_FILENAME = mainFile.name;
 
@@ -748,360 +698,9 @@
         });
 
         renderPreview();
-
         $("masterStatus").innerHTML = `<span class="success">Loaded:</span> ${masterFile.name} • ${MASTER.length} master rows`;
         $("mainStatus").innerHTML = `<span class="success">Loaded:</span> ${mainFile.name} • ${WTGs.length} BD rows • ${FDRS.length} feeder rows`;
         $("processStatus").innerHTML = `<span class="success">Done:</span> ${WTGs.length} WTG rows + ${FDRS.length} feeder rows processed`;
-
       } catch (err) {
         console.error(err);
-        $("processStatus").innerHTML = `<span class="danger">Error:</span> ${err.message}`;
-        alert("Processing failed da: " + err.message);
-      }
-    }
-
-    // ------------------------------
-    // PREVIEW
-    // ------------------------------
-    function renderPreview() {
-      const body = $("previewBody");
-      body.innerHTML = "";
-
-      WTGs
-        .sort((a,b) => (a.area || '').localeCompare(b.area || '') || b.durationHrs - a.durationHrs)
-        .forEach((w, idx) => {
-          const tr = document.createElement("tr");
-
-          tr.innerHTML = `
-            <td>${escapeHtml(w.id)}</td>
-            <td>${escapeHtml(w.area)}</td>
-            <td>${escapeHtml(w.site)}</td>
-            <td>${escapeHtml(String(w.capacity || ""))}</td>
-            <td>${escapeHtml(w.customer)}</td>
-            <td>${escapeHtml(w.error)}</td>
-            <td>${escapeHtml(fmtDateTimeDisplay(w.occurred))}</td>
-            <td>${Math.round(w.durationHrs)}</td>
-            <td>${escapeHtml(w.status)}</td>
-            <td class="adv"><input value="${escapeAttr(w.category || '')}" onchange="updateRow(${idx}, 'category', this.value)"></td>
-            <td class="adv"><input value="${escapeAttr(w.etr || '')}" onchange="updateRow(${idx}, 'etr', this.value)"></td>
-            <td class="adv"><textarea onchange="updateRow(${idx}, 'manualReason', this.value)">${escapeHtml(w.manualReason || '')}</textarea></td>
-            <td class="adv"><textarea onchange="updateRow(${idx}, 'actionTaken', this.value)">${escapeHtml(w.actionTaken || '')}</textarea></td>
-          `;
-          body.appendChild(tr);
-        });
-
-      applyPreviewMode();
-    }
-
-    function updateRow(idx, field, value){
-      WTGs[idx][field] = value;
-      const key = getManualKey(WTGs[idx]);
-      MANUAL[key] = {
-        ...(MANUAL[key] || {}),
-        etr: WTGs[idx].etr || '',
-        manualReason: WTGs[idx].manualReason || '',
-        actionTaken: WTGs[idx].actionTaken || ''
-      };
-      localStorage.setItem("report_manual_store", JSON.stringify(MANUAL));
-    }
-
-    function escapeHtml(s=''){
-      return String(s).replace(/[&<>"']/g, m => ({
-        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-      }[m]));
-    }
-    function escapeAttr(s=''){ return escapeHtml(s); }
-
-    // ------------------------------
-    // SAVE / LOAD
-    // ------------------------------
-    function saveManualStore(){
-      localStorage.setItem("report_manual_store", JSON.stringify(MANUAL));
-      alert("Manual data saved da ✅");
-    }
-
-    function loadManualStore(){
-      try {
-        MANUAL = JSON.parse(localStorage.getItem("report_manual_store") || "{}");
-      } catch {
-        MANUAL = {};
-      }
-    }
-
-    function clearAllData(){
-      if (!confirm("Full clear pannalama? Uploaded data + preview clear aagum.")) return;
-      MASTER = [];
-      WTGs = [];
-      FDRS = [];
-      $("output").value = "";
-      $("previewBody").innerHTML = "";
-      $("masterStatus").textContent = "No file uploaded";
-      $("mainStatus").textContent = "No file uploaded";
-      $("processStatus").textContent = "Waiting for files...";
-      $("masterFile").value = "";
-      $("mainFile").value = "";
-    }
-
-    // ------------------------------
-    // REPORT HELPERS
-    // ------------------------------
-    function getDateText(){
-      const v = $("reportDate").value;
-      if (!v) return "";
-      const d = new Date(v);
-      return fmtDateDisplay(d);
-    }
-    function getTimeText(){
-      return $("reportTime").value || "";
-    }
-
-    function groupByArea(rows){
-      const map = {};
-      AREAS.forEach(a => map[a] = []);
-      rows.forEach(r => {
-        const a = cleanArea(r.area || '');
-        if (!map[a]) map[a] = [];
-        map[a].push(r);
-      });
-      return map;
-    }
-
-    function getTieUps() {
-      return [
-        { area: "Muthayampatty", text: "1.Marudur 22kv SS Power transformer 5 - [Bakkiyalakshmi 22KV, Karvembu 22KV,SIL 22kV] - Feeders tie-up with Marudur22kv SS Power transformer 4 _ 14-12-25 _ 14 WTGs" },
-        { area: "Muthayampatty", text: "2.Ponnapuram 33kv SS Power transformer 6 - [Ponnapuram - Madathuppalayam 33KV, Suzlon 33KV 1] - Feeders tie-up with Sadayapalayam 33kv SS - Sadayapalayam - Rohit 33KV Feeder - 24-12-25 _ 32 WTGs" },
-        { area: "Viliseri", text: "1.Chandragiri Feeder 1 tie-up with Feeder 4 _ 28-02-26 _ 12 WTGs" },
-        { area: "Viliseri", text: "2.Chandragiri Feeder 2 tie-up with Feeder 3 _ 28-02-26 _ 12 WTGs" },
-      ];
-    }
-
-    function getFilteredWTGs6hr() {
-      return WTGs.filter(w => w.durationHrs >= 6 && !isIgnoreStatus(w.status));
-    }
-
-    function getFilteredWTGs10hr() {
-      return WTGs.filter(w => w.durationHrs >= 10 && !isIgnoreStatus(w.status));
-    }
-
-    function minorRows10hr() {
-      return getFilteredWTGs10hr().filter(w => !norm(w.category).includes("major"));
-    }
-
-    function stateHeadRows() {
-      return getFilteredWTGs6hr().filter(w => !norm(w.category).includes("major"));
-    }
-
-    function feederClassify(rows, minHours = 6) {
-      const bd = [];
-      const lc = [];
-      rows.forEach(r => {
-        if ((r.duration || 0) < minHours) return;
-        const d = norm(r.desc || '');
-        if (d.includes('lc')) lc.push(r);
-        else bd.push(r);
-      });
-      return { bd, lc };
-    }
-
-    // ------------------------------
-    // GENERATORS
-    // ------------------------------
-    function generateAbove6WTG() {
-      const rows = getFilteredWTGs6hr();
-      const grouped = groupByArea(rows);
-
-      let out = "";
-      out += `*TN Above 06 Hrs Stoppage WTGS Status:*\n\n`;
-      out += `*Date : ${getDateText()}*\n\n`;
-      out += `*Time : ${getTimeText()}*\n\n`;
-      out += `*Total WTG’s : ${rows.length}*\n\n`;
-
-      AREAS.forEach(area => {
-        const arr = grouped[area] || [];
-        out += `*${area}-${arr.length}*\n\n`;
-        arr.sort((a,b)=>b.durationHrs-a.durationHrs).forEach((w, i) => {
-          out += `*${i+1}.* ${w.id} _ ${w.manualReason || w.error} _ ${w.capacity || ''} _ ${fmtDateDisplay(w.occurred)} _ ${tryParseDate(w.occurred) ? String(tryParseDate(w.occurred).getHours()).padStart(2,'0') + ":" + String(tryParseDate(w.occurred).getMinutes()).padStart(2,'0') : ''} _ *${w.customer || ''}*\n\n`;
-        });
-      });
-
-      $("output").value = out.trim();
-    }
-
-    function generateAbove6Feeder() {
-      const rows = FDRS.filter(r => (r.duration || 0) >= 6);
-      const { bd, lc } = feederClassify(rows, 6);
-      const groupedBD = groupByArea(bd);
-      const groupedLC = groupByArea(lc);
-      const tieups = getTieUps();
-
-      let bdWtg = bd.reduce((s,r)=>s+(r.count||0),0);
-      let lcWtg = lc.reduce((s,r)=>s+(r.count||0),0);
-
-      let out = "";
-      out += `*TN Above 06 Hrs Stoppage Feeder Status*\n\n`;
-      out += `*Date : ${getDateText()}*\n\n`;
-      out += `*Time : ${getTimeText()}*\n\n`;
-      out += `*Feeder BD : ${bd.length.toString().padStart(2,'0')} [ ${String(bdWtg).padStart(2,'0')} WTGs]*\n\n`;
-      out += `*Feeder LC :${lc.length.toString().padStart(2,'0')} [ ${String(lcWtg).padStart(2,'0')} WTGs ]*\n\n`;
-
-      AREAS.forEach(area => {
-        const arr = groupedBD[area] || [];
-        if (!arr.length) {
-          out += `*${area} - NIL*\n\n`;
-        } else {
-          out += `*${area} - ${arr.length}*\n\n`;
-          arr.forEach((f, i) => {
-            out += `*${i+1}.${f.feeder}-Feeder BD-${fmtDateTimeDisplay(f.from).replace(" _ ","  ")}-${f.count}WTGs-ËTR-${f.etr || fmtDateDisplay(getDateText())}*\n\n`;
-          });
-        }
-      });
-
-      const totalTie = tieups.length;
-      const totalTieWtgs = 70;
-      out += `*Feeder tie-up :${String(totalTie).padStart(2,'0')} [${totalTieWtgs} WTGs]*\n\n`;
-
-      const m = tieups.filter(x => x.area === "Muthayampatty");
-      const v = tieups.filter(x => x.area === "Viliseri");
-
-      out += `*Muthyampatty - ${String(m.length).padStart(2,'0')}*\n\n`;
-      m.forEach(t => out += `${t.text}\n\n`);
-
-      out += `*Viliseri - ${String(v.length).padStart(2,'0')}*\n\n`;
-      v.forEach(t => out += `${t.text}\n\n`);
-
-      $("output").value = out.trim();
-    }
-
-    function generateStateHead() {
-      const rows = stateHeadRows();
-      const grouped = groupByArea(rows);
-      const feederRows = FDRS.filter(r => (r.duration || 0) >= 6);
-      const { bd, lc } = feederClassify(feederRows, 6);
-      const tieups = getTieUps();
-
-      let out = "";
-      out += `*Mr. State Head Sir Need Your Intervention Required Below WTG*\n\n`;
-      out += `*Above 06 Hrs WTGs Status*\n\n`;
-      out += `*Total WTG’s : ${rows.length}*\n\n`;
-
-      AREAS.forEach(area => {
-        const arr = grouped[area] || [];
-        if (!arr.length) return;
-        out += `*${area}-${arr.length}*\n\n`;
-        arr.sort((a,b)=>b.durationHrs-a.durationHrs).forEach((w, i) => {
-          out += `*${i+1}.* ${w.id} _ ${w.site || area} _ ${w.manualReason || w.error} _ ${Math.round(w.durationHrs)} Hrs\n\n`;
-        });
-      });
-
-      const bdWtg = bd.reduce((s,r)=>s+(r.count||0),0);
-      const lcWtg = lc.reduce((s,r)=>s+(r.count||0),0);
-
-      out += `\n*Feeder BD : ${String(bd.length).padStart(2,'0')} [ ${String(bdWtg).padStart(2,'0')} WTGs]*\n\n`;
-      out += `*Feeder LC :${String(lc.length).padStart(2,'0')} [ ${String(lcWtg).padStart(2,'0')} WTGs ]*\n\n`;
-
-      bd.forEach((f, i) => {
-        out += `${i+1}.${f.feeder}- Feeder BD _${fmtDateDisplay(f.from)}  ${tryParseDate(f.from) ? String(tryParseDate(f.from).getHours()).padStart(2,'0') + ":" + String(tryParseDate(f.from).getMinutes()).padStart(2,'0') : ''} _ [ ${f.count}WTGs_] ETR _ ${f.etr || getDateText()}\n\n`;
-      });
-
-      out += `\n*Feeder tie-up :07 [70 WTGs]*\n\n`;
-      tieups.forEach((t, i) => out += `${i+1}.${t.text.replace(/^\d+\./,'')}\n\n`);
-
-      $("output").value = out.trim();
-    }
-
-    function generateCEO10() {
-      const rows = getFilteredWTGs10hr().sort((a,b)=>b.durationHrs-a.durationHrs);
-      const feederRows = FDRS.filter(r => (r.duration || 0) >= 10);
-      const { bd, lc } = feederClassify(feederRows, 10);
-      const tieups = getTieUps();
-
-      let out = "";
-      out += `*Mr. CEO Sir Need Your Intervention Required Below WTG*\n\n`;
-      out += `*Above 10 Hrs WTGs Status*\n\n`;
-      out += `*Total WTG’s : ${rows.length}*\n\n`;
-
-      rows.forEach((w, i) => {
-        out += `*${i+1}.* ${w.id} _ ${w.site || w.area} _ ${w.manualReason || w.error} _ ${Math.round(w.durationHrs)} Hrs  ETR - ${w.etr || getDateText().replace(/-/g,'/')}\n\n`;
-      });
-
-      const bdWtg = bd.reduce((s,r)=>s+(r.count||0),0);
-      const lcWtg = lc.reduce((s,r)=>s+(r.count||0),0);
-
-      out += `*Feeder BD : ${String(bd.length).padStart(2,'0')} [ ${String(bdWtg).padStart(2,'0')} WTGs]*\n\n`;
-      bd.forEach((f, i) => {
-        out += `${i+1}.${f.feeder}- Feeder BD _ ${fmtDateDisplay(f.from)}  ${tryParseDate(f.from) ? String(tryParseDate(f.from).getHours()).padStart(2,'0') + ":" + String(tryParseDate(f.from).getMinutes()).padStart(2,'0') : ''} _ [ ${f.count}WTGs_] ETR _ ${f.etr || getDateText()}\n\n`;
-      });
-
-      out += `*Feeder LC :${String(lc.length).padStart(2,'0')} [ ${String(lcWtg).padStart(2,'0')} WTGs ]*\n\n`;
-      out += `\n*Feeder tie-up :07 [70 WTGs]*\n\n`;
-      tieups.forEach((t, i) => out += `${i+1}.${t.text.replace(/^\d+\./,'')}\n\n`);
-
-      $("output").value = out.trim();
-    }
-
-    function generateMinor10() {
-      const rows = minorRows10hr().sort((a,b)=>b.durationHrs-a.durationHrs);
-      const feederRows = FDRS.filter(r => (r.duration || 0) >= 10);
-      const { bd, lc } = feederClassify(feederRows, 10);
-      const tieups = getTieUps();
-
-      let out = "";
-      out += `*TN Above 10 Hrs WTGs Status*\n\n`;
-      out += `*Total WTG’s : ${rows.length}*\n\n`;
-
-      rows.forEach((w, i) => {
-        out += `*${i+1}.* ${w.id} _ ${w.site || w.area} _ ${w.manualReason || w.error} _ ${Math.round(w.durationHrs)} Hrs  ETR - ${w.etr || getDateText().replace(/-/g,'/')}\n\n`;
-      });
-
-      const bdWtg = bd.reduce((s,r)=>s+(r.count||0),0);
-      const lcWtg = lc.reduce((s,r)=>s+(r.count||0),0);
-
-      out += `\n*Feeder BD : ${String(bd.length).padStart(2,'0')} [${bdWtg} WTGs]*\n\n`;
-      bd.forEach((f, i) => {
-        out += `${i+1}. ${f.feeder} - Feeder BD _ ${fmtDateDisplay(f.from)}  ${tryParseDate(f.from) ? String(tryParseDate(f.from).getHours()).padStart(2,'0') + ":" + String(tryParseDate(f.from).getMinutes()).padStart(2,'0') : ''} _ ${f.count}WTGs_ ${f.area || ''} _ ETR : ${f.etr || getDateText().replace(/-/g,'.')}\n\n`;
-      });
-
-      out += `*Feeder LC : ${String(lc.length).padStart(2,'0')} [${lcWtg.toString().padStart(2,'0')} WTGs]*\n`;
-      out += `----------------------------------------\n`;
-      out += `Feeder Tie-Up :07[70 WTGs]\n\n`;
-
-      const m = tieups.filter(x => x.area === "Muthayampatty");
-      const v = tieups.filter(x => x.area === "Viliseri");
-
-      out += `*Muthyampatty - ${String(m.length).padStart(2,'0')}*\n\n`;
-      m.forEach(t => out += `${t.text.replace(/_/g,'-')}\n\n`);
-
-      out += `*Viliseri - ${String(v.length).padStart(2,'0')}*\n\n`;
-      v.forEach(t => out += `${t.text.replace(/_/g,'-')}\n\n`);
-
-      $("output").value = out.trim();
-    }
-
-    // ------------------------------
-    // OUTPUT ACTIONS
-    // ------------------------------
-    function copyOutput() {
-      const txt = $("output");
-      txt.select();
-      txt.setSelectionRange(0, 999999);
-      navigator.clipboard.writeText(txt.value).then(() => {
-        alert("Copied da ✅");
-      }).catch(() => {
-        document.execCommand("copy");
-        alert("Copied da ✅");
-      });
-    }
-
-    function downloadOutput() {
-      const text = $("output").value || "";
-      if (!text.trim()) return alert("Output empty da.");
-      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "report-output.txt";
-      a.click();
-      URL.revokeObjectURL(a.href);
-    }
-  </script>
-</body>
-</html>
+        $("processStatus").innerHTML = `<span clas
